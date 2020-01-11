@@ -1,0 +1,83 @@
+<!DOCTYPE html> <!--HTML5を宣言-->
+<html>
+  <head> <!--ページに関する情報を記述-->
+    <meta charset="utf-8"> <!--文字コードとしてUnicodeを指定-->
+    <title>ほにゃる〜む</title> <!--ページのタイトル-->
+    <link rel="stylesheet" href="stylesheet.css"> <!--別ファイルのスタイルシートを読み込み-->
+  </head>
+  <header>
+    <!--現状不使用-->
+  </header>
+  <body> <!--ページに表示したい内容を記述-->
+    <div class="DateTime"> <!--クラス名付きでグループ化-->
+      <p id="DateText"></p> <!--ここに日付を表示-->
+      <p id="TimeText"></p> <!--ここに時刻を表示-->
+      <script> //javascriptを記述
+        function ZeroPlus(num){ //2桁表示にする関数を宣言
+          let zp;
+          if(num < 10){zp = "0" + num;} //条件式でtrueの場合の処理
+          else{zp = num;} //falseの場合の処理
+          return zp; //結果の値を返す
+        }
+        function NowDate(){ //現在の日付を返す関数を宣言
+          let date0 = new Date(); //現在の日時を取得
+          let date1 = date0.getFullYear(); //年を抽出
+          let date2 = date0.getMonth(); //月を抽出 (0〜11)
+          let date3 = date0.getDate(); //日を抽出
+          let date4 = date0.getDay(); //曜日を抽出 (0〜6:日曜〜土曜)
+          let weekname = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]; //曜日名の配列を作成
+          let date5 = weekname[date4]; //抽出した0〜6に対する曜日名を代入
+          let date6 = date1 + ". " + date2 + 1 +". " + date3 + ". " + date5; //文字列を組み合わせ
+          document.getElementById("DateText").innerHTML = date6; //id指定の要素に文字列を返す
+        }
+        function NowTime(){  //現在の時刻を返す関数を宣言
+          let time0 = new Date();
+          let time1 = ZeroPlus(time0.getHours()); //時を抽出
+          let time2 = ZeroPlus(time0.getMinutes()); //分を抽出
+          let time3 = ZeroPlus(time0.getSeconds()); //秒を抽出
+          let time4 = time1 + " : " + time2 + " : " + time3;
+          document.getElementById("TimeText").innerHTML = time4;
+        }
+        setInterval('NowDate()', 1000); //1秒毎に更新する
+        setInterval('NowTime()', 1000);
+      </script>
+    </div>
+    <div class="box">
+      <h3 class="title">ほにゃる〜む</h3> <!--見出しとして文字列を表示-->
+      <p>2020ねん1がつ　ぷろぐらみんぐ　はじめました</p> <!--段落として文字列を表示-->
+      <p class="border"></p> <!--罫線用-->
+      <img src="img001.png" alt="いらすと" class="img001"> <!--画像ファイルを表示-->
+      <!--altは指定した画像ファイルが読み込めなかった場合に代わりに表示する文字-->
+      <p>なまえ：ほにゃ</p>
+      <p>もくひょう：げーむせいさく</p>
+      <p>げんご：じゃばすくりぷと</p>
+      <p>ぱそこん：まっくぶっく</p>
+      <p>おえかき：あいぱっど</p>
+      <p>きょくづくり：あいぱっど</p>
+    </div>
+    <div class="box">
+      <h3 class="title">とりあえずなにか</h3>
+      <p>ちょいめも</p>
+      <input> <!--1行のテキスト入力フォームを表示-->
+    </div>
+    <div class="box">
+      <h3 class="title">げーむ</h3>
+      <a href="game001.html">しゅーてぃんぐ</a> <!--別ページへ移動するリンクを表示-->
+    </div>
+    <div class="box">
+      <h3 class="title">みゅーじっく</h3>
+      <p>"よぞら"</p>
+      <audio src="star.mp3" loop controls></audio> <!--音楽再生インターフェイスを表示-->
+      <!--autoplayは自動再生(不使用) loopはループ再生 controlsはインターフェイス表示-->
+    </div>
+    <div class="box">
+      <h3 class="title">りんく</h3>
+      <a>いろさがし：</a> <!--文字列表示-->
+      <a href="https://www.peko-step.com/tool/tfcolor.html" target="_blank">PEKO STEP</a>
+      <!--別サイトへ移動するリンクを表示 (_blankで新しいタブを開く)-->
+    </div>
+  </body>
+  <footer>
+    <!--現状不使用-->
+  </footer>
+</html>
