@@ -1,4 +1,4 @@
-<!DOCTYPE html> <!--HTML5を宣言-->
+<!DOCTYPE html> <!--HTML5を宣言--> <!--HTMLのコメントアウト-->
 <html>
   <head> <!--ページに関する情報を記述-->
     <meta charset="utf-8"> <!--文字コードとしてUnicodeを指定-->
@@ -10,9 +10,11 @@
   </header>
   <body> <!--ページに表示したい内容を記述-->
     <div class="DateTime"> <!--クラス名付きでグループ化-->
-      <p id="DateText"></p> <!--ここに日付を表示-->
-      <p id="TimeText"></p> <!--ここに時刻を表示-->
-      <script> //javascriptを記述
+      <p></p> <!--空白行--> <!--段落として文字列を表示-->
+      <a id="DateText"></a> <!--ここに日付を表示-->
+      <br> <!--改行-->
+      <a id="TimeText"></a> <!--ここに時刻を表示-->
+      <script> //javascriptを記述 //javascriptのコメントアウト
         function ZeroPlus(num){ //2桁表示にする関数を宣言
           let zp;
           if(num < 10){zp = "0" + num;} //条件式でtrueの場合の処理
@@ -44,37 +46,64 @@
     </div>
     <div class="box">
       <h3 class="title">ほにゃる〜む</h3> <!--見出しとして文字列を表示-->
-      <p>2020ねん1がつ　ぷろぐらみんぐ　はじめました</p> <!--段落として文字列を表示-->
+      <a>2020ねん1がつ ぷろぐらみんぐ はじめました</a>
       <p class="border"></p> <!--罫線用-->
       <img src="img001.png" alt="いらすと" class="img001"> <!--画像ファイルを表示-->
       <!--altは指定した画像ファイルが読み込めなかった場合に代わりに表示する文字-->
-      <p>なまえ：ほにゃ</p>
-      <p>もくひょう：げーむせいさく</p>
-      <p>げんご：じゃばすくりぷと</p>
-      <p>ぱそこん：まっくぶっく</p>
-      <p>おえかき：あいぱっど</p>
-      <p>きょくづくり：あいぱっど</p>
+      <br>
+      <a>なまえ：ほにゃ</a> <br>
+      <a>もくひょう：げーむせいさく</a> <br>
+      <a>げんご：じゃばすくりぷと</a> <br>
+      <a>ぱそこん：まっくぶっく</a> <br>
+      <a>おえかき：あいぱっど</a> <br>
+      <a>きょくづくり：あいぱっど</a> <br>
     </div>
     <div class="box">
-      <h3 class="title">とりあえずなにか</h3>
-      <p>ちょいめも</p>
-      <input> <!--1行のテキスト入力フォームを表示-->
+      <h3 class="title">けーさん</h3>
+      <a>けいさんしき にゅうりょく → いこーるぼたん くりっく</a> <br>
+      <a>[ +：たす]　[ -：ひく]　[ *：かける]　[ /：わる]</a> <br>
+      <form id="form0" action="#"> <!--フォームを用意-->
+        <input id="textBox" type="text" value=""> <!--1行のテキスト入力フォームを表示-->
+        <!--javascriptから参照できるようにid属性を設定-->
+        <input type="button" value="=" onclick="onButtonClick();"> <!--"="と文字指定したボタンを表示-->
+        <!--ボタンがクリックされるとonButtonClick()関数を実行するよう指定-->
+        <a id="outputText"></a>  <!--計算結果を表示-->
+      </form>
+      <script>
+        function onButtonClick(){ //ボタンクリックの関数を宣言
+          let inputText = document.getElementById("textBox").value; //入力された値を取得
+          document.getElementById("outputText").innerHTML = eval(inputText); //取得した値を計算して代入
+          //evalは引数を式として認識する これを使わないと入力された式はただの文字列として出力される
+        }
+      </script>
     </div>
     <div class="box">
       <h3 class="title">げーむ</h3>
-      <a href="game001.html">しゅーてぃんぐ</a> <!--別ページへ移動するリンクを表示-->
+      <a href="game001.html">しゅーてぃんぐ (とちゅう1)</a> <br> <!--改行-->
+      <!--別ページへ移動するリンクを表示-->
+      <a href="game001a.html">しゅーてぃんぐ (とちゅう2) </a> <br>
+      <a href="game001b.html">しゅーてぃんぐ (とちゅう3) </a> <br>
+      <a href="game001c.html">しゅーてぃんぐ (かんせい？) </a> <br>
     </div>
     <div class="box">
       <h3 class="title">みゅーじっく</h3>
-      <p>"よぞら"</p>
-      <audio src="star.mp3" loop controls></audio> <!--音楽再生インターフェイスを表示-->
-      <!--autoplayは自動再生(不使用) loopはループ再生 controlsはインターフェイス表示-->
+      <a>"よぞら"</a> <br>
+      <audio src="star.mp3" controls></audio> <!--音楽再生インターフェイスを表示-->
+      <!--autoplayは自動再生(不使用) loopはループ再生(不使用) controlsはインターフェイス表示-->
     </div>
     <div class="box">
       <h3 class="title">りんく</h3>
-      <a>いろさがし：</a> <!--文字列表示-->
-      <a href="https://www.peko-step.com/tool/tfcolor.html" target="_blank">PEKO STEP</a>
+      <a>ぷろぐらみんぐ べんきょう：</a> <!--文字列表示-->
+      <a href="https://prog-8.com" target="_blank">Progate</a> <br>
       <!--別サイトへ移動するリンクを表示 (_blankで新しいタブを開く)-->
+      <a>あーるじーびー いろさがし：</a>
+      <a href="https://www.peko-step.com/tool/tfcolor.html" target="_blank">PEKO STEP</a> <br>
+      <a>りあるたいむとけい：</a>
+      <a href="https://www.nishishi.com/javascript-tips/realtime-clock-setinterval.html" target="_blank">にししふぁくとりー</a> <br>
+      <a>しゅーてぃんぐげーむ さんこう：</a>
+      <a href="https://lambdalisue.hatenablog.com/entry/2013/12/25/160910" target="_blank">Alisue's blog</a> <br>
+
+
     </div>
   </body>
   <footer>

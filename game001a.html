@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>ほにゃる〜む</title>
+    <link rel="stylesheet" href="stylesheet.css">
+    <style> /*CSSを直接記述*/ /*CSSのコメントアウト*/
+      canvas{
+        background-color: rgba(75, 75, 75, 1);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+      <h3 class="title">しゅーてぃんぐ（とちゅう2）</h3>
+      <a>やじるしきー さゆういどう</a> <br>
+      <p></p>
+      <p class="border"></p>
+      <canvas id="screen" width="320" height="320"></canvas> <!--キャンバスを描画 (色はSCCで指定)-->
+      <p></p>
+      <img id="player" src="file001/player.png">
+      <img id="enemy" src="file001/enemy.png">
+      <img id="pbullet" src="file001/pbullet.png">
+      <img id="ebullet" src="file001/ebullet.png">
+      <script>
+        let canvas, ctx; //全体使用する変数を定義
+        let img_player; //player画像を保持する変数を定義
+        let img_enemy; //enemy画像を保持する変数を定義
+        let player_x, player_y; //playerのX,Y座標となる変数を定義
+        let Enemies = 10; //enemyの数を定義
+        let Enemies_x = new Array(Enemies); //enemyの現在位置を保持する変数を定義
+        let Enemies_y = new Array(Enemies); //enemyの数だけ要素を持つ配列を定義
+        window.onload =function(){ //ページロード時に呼び出される処理を指定
+          canvas = document.getElementById("screen"); //キャンバスオブジェクトを取得代入
+          ctx = canvas.getContext("2d"); //コンテキストを取得代入
+          img_player = document.getElementById("player"); //player画像を取得
+          img_enemy = document.getElementById("enemy"); //enemy画像を取得
+          player_x = (canvas.width - img_player.width) / 2; //playerの初期位置 キャンバスの左右中央
+          player_y = (canvas.height - img_player.height) - 20; //playerの初期位置 キャンバスの下から20px上
+          ctx.drawImage(img_player, player_x, player_y); //player画像を初期位置に描画
+          for(let i=0; i<Enemies; i++){ //繰り返し処理 enemyの初期位置を指定
+            Enemies_x[i] = Math.random() * (canvas.width - img_enemy.width);
+            Enemies_y[i] = Math.random() * (canvas.height - img_enemy.height);
+          }
+          for(let i=0; i<Enemies; i++){ //繰り返し処理 enemy画像を初期位置に描画
+            ctx.drawImage(img_enemy, Enemies_x[i], Enemies_y[i]);
+          }
+        };
+        window.onkeydown = function(e){ //キーボードが押されたときに呼び出す処理
+          let moved = false; //移動処理を行ったかの変数を定義
+          if(e.keyCode == 39){ //条件式 押されたキーが右矢印(39)であった場合
+            player_x += 2; //playerのX座標を+2
+            moved = true; //動いたのでtrueを代入
+          } else if(e.keyCode == 37){ //条件式 押されたキーが左矢印(37)であった場合
+            player_x -= 2; //playerのX座標を-2
+            moved = true; //動いたのでtrueを代入
+          }
+          if(moved){ //playerが動いた場合
+            ctx.clearRect(0, 0, canvas.width, canvas.height); //キャンバスをクリア
+            ctx.drawImage(img_player, player_x, player_y); //playerを新しい位置に描画
+            for(let i=0; i<Enemies; i++){ //繰り返し処理 enemyを新しい位置に描画
+              ctx.drawImage(img_enemy, Enemies_x[i], Enemies_y[i]);
+            }
+          }
+        };
+      </script>
+    </div>
+    <div class="box">
+      <p></p>
+      <a href="index.html">もどる</a>
+    </div>
+  </body>
+</html>

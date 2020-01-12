@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>ほにゃる〜む</title>
+    <link rel="stylesheet" href="stylesheet.css">
+    <style> /*CSSを直接記述*/ /*CSSのコメントアウト*/
+      canvas{
+        background-color: rgba(75, 75, 75, 1);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="box">
+      <h3 class="title">しゅーてぃんぐ（かんせい？）</h3>
+      <a>すたーとがめん さくせい</a> <br>
+      <a>ぜんめつさせるとくりあー</a> <br>
+      <a>まけるとげーむーおーばー</a> <br>
+      <p></p>
+      <p class="border"></p>
+      <a>Enter：すたーと</a> <br>
+      <a>←→：むーぶ</a> <br>
+      <a>Z：しょっと</a> <br>
+      <canvas id="screen" width="320" height="640"></canvas> <!--キャンバスを描画 (色はSCCで指定)-->
+      <p></p>
+      <img id="player" src="file001/player.png">
+      <img id="enemy" src="file001/enemy.png">
+      <img id="pbullet" src="file001/pbullet.png">
+      <img id="ebullet" src="file001/ebullet.png">
+      <script>
+        let canvas, ctx; //全体使用する変数を定義
+        let img_player; //player画像を保持する変数を定義
+        let img_enemy; //enemy画像を保持する変数を定義
+        let img_pbullet; //弾画像を保持する変数を定義
+        let player_x, player_y; //playerのX,Y座標となる変数を定義
+        let bullet = 3; //弾の数を定義
+        let pbullet_x = new Array(bullet); //弾の現在位置を保持する変数を配列で定義
+        let pbullet_y = new Array(bullet);
+        let Enemies = 15; //enemyの数を定義
+        let Enemies_x = new Array(Enemies); //enemyの現在位置を保持する変数を定義
+        let Enemies_y = new Array(Enemies); //enemyの数だけ要素を持つ配列を定義
+        let player_hp; //playerのヒットポイントを定義
+        let Enemies_hp = new Array(Enemies); //enemyのヒットポイントを配列で定義
+        let pbullet_hp = new Array(bullet); //弾のヒットポイントを配列で定義
+        let fire_interval = 10; //発射インターバルの値を定義
+        let player_fire_interval = 0; //playerの発射インターバルの値を定義
+        let killed = 0; //enemyを倒した数を定義
+        let redraw = function(){ //再描画する関数を定義
+          ctx.clearRect(0, 0, canvas.width, canvas.height); //キャンバスをクリア
+          if(player_hp>0){ //playerが生きている場合
+            ctx.drawImage(img_player, player_x, player_y); //playerを新しい位置に描画
+          }
+          for(let i=0; i<Enemies; i++){ //繰り返し処理
+            if(Enemies_hp[i]>0){ //enemyが生きている場合
+              ctx.drawImage(img_enemy, Enemies_x[i], Enemies_y[i]); //enemyを新しい位置に描画
+            }
+          }
+          for(let i=0; i<bullet; i++){
+            if(pbullet_hp[i]>0){ //弾が生きている場合
+              ctx.drawImage(img_pbullet, pbullet_x[i], pbullet_y[i]); //弾を新しい位置に描画
+            }
+          }
+          if(player_hp<=0){ //playerが負けたら文字列を表示
+            text = "げーむおーばー";
+            ctx.font = "35px sans-serif"; //フォントサイズと種類を指定
+            ctx.textBaseline = "middle"; //上下位置のベースラインを中心にする
+            ctx.fillStyle = "white"; //文字色を指定
+            ctx.fillText(text, (canvas.width - ctx.measureText(text).width)/2, canvas.height/2);
+          } //テキストの位置を指定
+          if(killed == Enemies){ //playerが勝ったら文字列を表示
+            text = "げーむくりあー";
+            ctx.font = "35px sans-serif";
+            ctx.textBaseline = "middle";
+            ctx.fillStyle = "white";
+            ctx.fillText(text, (canvas.width - ctx.measureText(text).width)/2, canvas.height/2);
+          }
+        }
+        let FPS = 30; //FPS(Frame Per Second)を定義
+        let MSPF = 1000/FPS; //MSPF(Milli Second Per Frame)を定義
+        let key = new Array(256); //キー状態の変数を定義 (256以上のキーコードは無いはず)
+        //キーコード: 13=Enter, 37=左矢印, 39=右矢印, 90=Z
+        for(let i=0; i<key.length; i++){
+          key[i] = false; //キーを押されていない状態として初期化
+        }
+        window.onkeydown = function(e){ //キーが押されたときに呼び出される処理を指定
+          key[e.keyCode] = true; //キーが押された状態に更新
+        }
+        window.onkeyup = function(e){ //キーが離されたときに呼び出される処理を指定
+          key[e.keyCode] = false; //キーが離された状態に更新
+        }
+        let movePlayer = function(e){ //キーボードが押されたときに呼び出す処理
+          if(player_hp<=0){ //playerが生きているときのみ処理する
+            return; //hpが0になるとこの処理はここで終わる
+          }
+          let speed1 = 8; //移動速度を定義
+          if(key[39] && player_x + img_player.width < canvas.width){
+            //条件式 押されたキーが右矢印(39)であった場合 かつplayerがキャンバスの右端に入っている場合
+            player_x += speed1; //playerのX座標を移動速度分プラス
+          } else if(key[37] && player_x > 0){
+            //条件式 押されたキーが左矢印(37)であった場合 かつplayerがキャンバスの左端に入っている場合
+            player_x -= speed1; //playerのX座標を移動速度分マイナス
+          }
+          if(key[90] && player_fire_interval==0){ //Zキーが押された場合 かつ発射インターバルが0の場合
+            for(let i=0; i<bullet; i++){
+              if(pbullet_hp[i]==0){ //弾のヒットポイントが0 つまり未使用の弾がある場合
+                pbullet_x[i] = player_x; //弾の初期位置はplayerと同じ位置にする
+                pbullet_y[i] = player_y;
+                pbullet_hp[i] = 1; //弾のヒットポイントを1にして移動処理を行う
+                player_fire_interval = fire_interval; //弾を撃ったので発射インターバルを上げる
+                break; //弾を撃ったのでループ処理を抜ける
+              }
+            }
+          }
+          if(player_fire_interval>0){ //発射インターバルが0より大きい場合
+            player_fire_interval--; //発射インターバルを減らす
+          }
+        };
+        let moveEnemies = function(){ //enemyの移動処理をする関数を定義
+          let speed2 = 8; //移動速度を定義
+          for(let i=0; i<Enemies; i++){ //繰り返し処理
+            if(Enemies_hp[i]<=0){ //enemyごとに生きているときのみ処理する
+              continue; //hpが0になると残りのステップを無視して次のループに行く
+            }
+            Enemies_y[i] += speed2; //enemyを下に移動
+            if(Enemies_y[i] > canvas.height){ //enemyがキャンバスの一番下に来た場合
+              Enemies_y[i] = 0 -img_enemy.height; //enemyをキャンバスの一番上に移動
+              Enemies_x[i] = Math.random() * (canvas.width - img_enemy.width); //X座標をランダムに変更
+            }
+          }
+        };
+        let movePbullet = function(){ //弾の移動処理をする関数を定義
+          let speed3 = 8;
+          for(let i=0; i<bullet; i++){
+            if(pbullet_hp[i]<=0){ //弾が生きている場合
+              continue;
+            }
+            pbullet_y[i] -= speed3; //弾は上方向に動かしたいのでY座標をマイナスする
+            if(pbullet_y[i] < 0){ //弾が画面上端まで来たとき
+              pbullet_hp[i] = 0; //弾のヒットポイントを0にして未使用状態に戻す
+            }
+          }
+        };
+        let hitCheck = function(x1, y1, obj1, x2, y2, obj2){ //汎用的な当たり判定の関数を定義
+          let cx1, cy1, cx2, cy2, r1, r2, d;
+          cx1 = x1 + obj1.width/2; //中心座標の取得
+          cy1 = y1 + obj1.height/2;
+          cx2 = x2 + obj2.width/2;
+          cy2 = y2 + obj2.height/2;
+          r1 = (obj1.width+obj1.height)/4; //半径の計算
+          r2 = (obj2.width+obj2.height)/4;
+          d = Math.sqrt(Math.pow(cx1-cx2, 2) + Math.pow(cy1-cy2, 2)); //中心座標同士の距離を計算
+          //Math.sqrt(a)はaのルートを返す Math.pow(a,b)はaのb乗を返す
+          if(r1 + r2 > d){ //当たっているか判定
+            return true; //当たっている
+          } else {
+            return false; //当たっていない
+          }
+        };
+        let titleloop = function(){ //タイトルループを定義
+          let startTime = new Date();
+          let text = "しゅーてぃん！"
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.font = "35px sans-serif";
+          ctx.textBaseline = "middle";
+          ctx.fillStyle = "white";
+          ctx.fillText(text, (canvas.width - ctx.measureText(text).width)/2, canvas.height/2);
+          if(key[13]){ //Enterキーが押された場合
+            mainloop(); //メインループを呼び出す
+            return;
+          }
+          let deltaTime = (new Date()) - startTime;
+          let interval = MSPF - deltaTime;
+          if(interval>0){setTimeout(titleloop, interval);}
+          else{setTimeout(titleloop, 0);}
+        }
+        let mainloop = function(){ //メインループを定義
+          let startTime = new Date(); //処理開始時間を保存
+          movePlayer(); //player移動処理
+          moveEnemies(); //enemy移動処理
+          movePbullet(); //弾の移動処理
+          if(player_hp>0){ //playerとenemyの当たり判定
+            for(let i=0; i<Enemies; i++){
+              if(hitCheck(player_x, player_y, img_player, //当たり判定がtrueのときダメージ処理
+              Enemies_x[i], Enemies_y[i], img_enemy)){
+                player_hp -= 1;
+              }
+            }
+          }
+          if(player_hp>0){ //弾とenemyの当たり判定
+            for(let i=0; i<Enemies; i++){
+              if(Enemies_hp[i]<=0){ //enemyが消えている場合はスルー
+                continue;
+              }
+              for(let j=0; j<bullet; j++){
+                if(pbullet_hp[j]<=0){ //弾が消えている場合はスルー
+                  continue;
+                }
+                if(hitCheck(pbullet_x[j], pbullet_y[j], img_pbullet, //当たり判定がtrueのときダメージ処理
+                  Enemies_x[i], Enemies_y[i], img_enemy)){
+                    pbullet_hp[j] -= 1;
+                    Enemies_hp[i] -= 1;
+                    killed += 1; //撃破数を増加
+                  }
+              }
+            }
+          }
+          redraw(); //再描画処理
+          let deltaTime = (new Date()) - startTime; //処理経過時間を計算
+          let interval = MSPF - deltaTime; //次のループまでの間隔を計算
+          if(interval>0){setTimeout(mainloop, interval);} //処理が早すぎるので次のループまで少し待つ
+          else{setTImeout(mainloop, 0);} //処理が遅すぎるのですぐに次のループを実行する
+        };
+        window.onload = function(){ //ページロード時に呼び出される処理を指定
+          canvas = document.getElementById("screen"); //キャンバスオブジェクトを取得代入
+          ctx = canvas.getContext("2d"); //コンテキストを取得代入
+          img_player = document.getElementById("player"); //player画像を取得
+          img_enemy = document.getElementById("enemy"); //enemy画像を取得
+          img_pbullet = document.getElementById("pbullet"); //弾画像を取得
+          player_x = (canvas.width - img_player.width) / 2; //playerの初期位置 キャンバスの左右中央
+          player_y = (canvas.height - img_player.height) - 16; //playerの初期位置 キャンバスの下から20px上
+          player_hp = 1; //playerのヒットポイントを指定
+          ctx.drawImage(img_player, player_x, player_y); //player画像を初期位置に描画
+          for(let i=0; i<Enemies; i++){ //繰り返し処理 enemyの初期位置を指定
+            Enemies_x[i] = Math.random() * (canvas.width - img_enemy.width);
+            Enemies_y[i] = Math.random() * canvas.height/2; //上半分に範囲に絞る
+            Enemies_hp[i] = 1; //enemyのヒットポイントを指定
+          }
+          for(let i=0; i<Enemies; i++){ //繰り返し処理 enemy画像を初期位置に描画
+            ctx.drawImage(img_enemy, Enemies_x[i], Enemies_y[i]);
+          }
+          for(let i=0; i<bullet; i++){ //繰り返し処理 弾画像を初期位置に描画
+            pbullet_x[i] = 0;
+            pbullet_y[i] = 0;
+            pbullet_hp[i] = 0;
+          }
+          titleloop();
+        };
+      </script>
+    </div>
+    <div class="box">
+      <p></p>
+      <a href="index.html">もどる</a>
+    </div>
+  </body>
+</html>
