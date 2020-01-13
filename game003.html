@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>ほにゃる〜む</title>
+    <link rel="stylesheet" href="stylesheet.css">
+  </head>
+  <body>
+    <div class="box">
+      <h3 class="title">てとりす（とちゅう1）</h3>
+      <canvas id="can"></canvas>
+      <script>
+        //フィールドのマスの数
+        const Field_X = 10;
+        const Field_Y = 20;
+
+        //ブロックひとつのサイズ
+        const BlockSize = 30;
+
+        //キャンバスのサイズ
+        const CanvasSize_X = Field_X * BlockSize;
+        const CanvasSize_Y = Field_Y * BlockSize;
+
+        //テトロミノのサイズ（縦横のマスの数）
+        const TetroSize = 4;
+
+        //キャンバスとコンテキストを読み込み
+        let can = document.getElementById("can");
+        let con = can.getContext("2d");
+
+        //キャンバスのサイズを指定
+        can.width = CanvasSize_X;
+        can.height = CanvasSize_Y;
+        can.style.border = "4px solid #555"; //
+
+        //テトロミノひとつ分となる4*4の2次元配列を定義
+        let tetro = [
+          [1, 1, 1, 1],
+          [0, 0, 0, 1],
+          [0, 0, 0, 1],
+          [0, 0, 0, 1]
+        ];
+
+        //テトロミノの座標を定義
+        let tetro_x = 0;
+        let tetro_y = 0;
+
+        //フィールドの中身を初期化
+        let field = []; //とりあえず1次元配列で定義
+        for(let y=0; y<Field_Y; y++){
+          field[y] = [];
+          for(let x=0; x<Field_X; x++){
+            field[y][x] = 0; //ここで2次元配列になる
+          }
+        } //これで10*20=200マス分の0を入れた
+
+        //テストブロック
+        field[5][5] = 1;
+        field[19][9] = 1;
+
+        //描画を実行
+        drawField();
+        drawTetro();
+
+        //フィールドを描画する関数を定義
+        function drawField(){
+          //描画を一度クリアする これがないと動かすごとに増えていく
+          con.clearRect(0, 0, CanvasSize_X, CanvasSize_Y);
+
+          //各配列要素から繰り返し処理してフィールドを作成
+          for(let y=0; y<Field_Y; y++){
+            for(let x=0; x<Field_X; x++){
+              if(field[y][x]==1){
+                let px = x * BlockSize; //1要素に1ブロック分のサイズを持たせる
+                let py = y * BlockSize;
+                con.fillStyle = "blue"; //塗り潰しの属性を赤色に指定
+                con.fillRect(px, py, BlockSize, BlockSize) //指定位置にブロックサイズの四角を描画
+                con.strokeStyle = "black"; //輪郭の属性を黒色に指定
+                con.strokeRect(px, py, BlockSize, BlockSize) //指定位置にブロックサイズの輪郭を描画
+              }
+            }
+          }
+        }
+
+        //テトロミノを描画する関数を定義
+        function drawTetro(){
+          //描画を一度クリアする これがないと動かすごとに増えていく
+          //con.clearRect(0, 0, CanvasSize_X, CanvasSize_Y);
+          //フィールドの描画時点で1回クリアすればよいのでここは不使用
+
+          //各配列要素から繰り返し処理してテトロミノを作成
+          for(let y=0; y<TetroSize; y++){
+            for(let x=0; x<TetroSize; x++){
+              if(tetro[y][x]==1){ //要素が1の場合
+                let px = (tetro_x + x) * BlockSize; //1要素に1ブロック分のサイズを持たせる
+                let py = (tetro_y + y) * BlockSize; //tetro_x,yを加えて座標の位置にする
+                con.fillStyle = "red"; //塗り潰しの属性を赤色に指定
+                con.fillRect(px, py, BlockSize, BlockSize) //指定位置にブロックサイズの四角を描画
+                con.strokeStyle = "black"; //輪郭の属性を黒色に指定
+                con.strokeRect(px, py, BlockSize, BlockSize) //指定位置にブロックサイズの輪郭を描画
+              }
+            }
+          }
+        }
+
+        //キーボードが押されたときの処理
+        document.onkeydown = function(e){
+          switch(e.keyCode){
+            case 37: //左矢印
+              tetro_x--;
+              break;
+            case 38: //上矢印
+              tetro_y--;
+              break;
+            case 39: //右矢印
+              tetro_x++;
+              break;
+            case 40: //下矢印
+              tetro_y++;
+              break;
+            case 90: //Z
+              //
+              break;
+          }
+          drawField();
+          drawTetro();
+        }
+
+      </script>
+      <p></p>
+      <p class="border"></p>
+      <a>ふぃーるど さくせい</a> <br>
+      <a>ぶろっく さくせい</a> <br>
+      <a>ぶろっく きーいどう</a> <br>
+    </div>
+    <div class="box">
+      <p></p>
+      <a href="index.html">もどる</a>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>ほにゃる〜む</title>
+    <link rel="stylesheet" href="stylesheet.css">
+  </head>
+  <body>
+    <div class="box">
+      <h3 class="title">てとりす（かんせい？）</h3>
+      <p></p>
+      <a>そろったらけす</a> <br>
+      <a>つまったらげーむおーばー</a> <br>
+      <a>いちおうげーむのかたちにはなった</a> <br>
+      <p class="border"></p>
+      <a>ほうこうきー：いどう</a> <br>
+      <a>（うえにもいけちゃうけど）</a> <br>
+      <a>Zきー：かいてん</a> <br>
+      <p class="border"></p>
+      <canvas id="can"></canvas>
+      <script>
+        //フィールドのマスの数
+        const Field_X = 10;
+        const Field_Y = 20;
+
+        //ブロックひとつのサイズ
+        const BlockSize = 30;
+
+        //キャンバスのサイズ
+        const CanvasSize_X = Field_X * BlockSize;
+        const CanvasSize_Y = Field_Y * BlockSize;
+
+        //テトロミノのサイズ（縦横のマスの数）
+        const TetroSize = 4;
+
+        //落ちるスピード
+        const GameSpeed = 500; //1000ミリ秒 = 1秒
+
+        //キャンバスとコンテキストを読み込み
+        let can = document.getElementById("can");
+        let con = can.getContext("2d");
+
+        //キャンバスのサイズを指定
+        can.width = CanvasSize_X;
+        can.height = CanvasSize_Y;
+        can.style.border = "4px solid #555"; //
+
+        //テトロミノひとつ分となる4*4の3次元配列を定義
+        const TetroTypes = [
+        [ // 0 non
+          [0, 0, 0, 0],
+          [0, 0, 0, 0],
+          [0, 0, 0, 0],
+          [0, 0, 0, 0]
+        ],
+        [ // 1 I
+          [0, 0, 0, 0],
+          [1, 1, 1, 1],
+          [0, 0, 0, 0],
+          [0, 0, 0, 0]
+        ],
+        [ // 2 L
+          [0, 1, 0, 0],
+          [0, 1, 0, 0],
+          [0, 1, 1, 0],
+          [0, 0, 0, 0]
+        ],
+        [ // 3 J
+          [0, 0, 1, 0],
+          [0, 0, 1, 0],
+          [0, 1, 1, 0],
+          [0, 0, 0, 0]
+        ],
+        [ // 4 T
+          [0, 1, 0, 0],
+          [0, 1, 1, 0],
+          [0, 1, 0, 0],
+          [0, 0, 0, 0]
+        ],
+        [ // 5 O
+          [0, 0, 0, 0],
+          [0, 1, 1, 0],
+          [0, 1, 1, 0],
+          [0, 0, 0, 0]
+        ],
+        [ // 6 Z
+          [0, 0, 0, 0],
+          [1, 1, 0, 0],
+          [0, 1, 1, 0],
+          [0, 0, 0, 0]
+        ],
+        [ // 7 S
+          [0, 0, 0, 0],
+          [0, 0, 1, 1],
+          [0, 1, 1, 0],
+          [0, 0, 0, 0]
+        ],
+        ];
+
+        //スタート位置を中心にする
+        const Start_X = Field_X/2 - TetroSize/2;
+        const Start_Y = 0;
+
+        //テトロミノ本体を定義
+        let tetro;
+
+        //テトロミノの形を定義
+        let tetro_t;
+
+        //ゲームオーバーフラグ
+        let over = false;
+
+        //テトロミノの座標を定義
+        let tetro_x = Start_X;
+        let tetro_y = Start_Y;
+
+        //フィールドの中身を初期化
+        let field = []; //とりあえず1次元配列で定義
+        for(let y=0; y<Field_Y; y++){
+          field[y] = [];
+          for(let x=0; x<Field_X; x++){
+            field[y][x] = 0; //ここで2次元配列になる
+          }
+        } //これで10*20=200マス分の0を入れた
+
+        //テストブロック
+        //field[5][5] = 1;
+        //field[19][9] = 1;
+
+        //ブロックタイプをランダム指定
+        tetro_t = Math.floor(Math.random() * (TetroTypes.length - 1)) +1;
+        tetro = TetroTypes[tetro_t];
+
+        //描画を実行
+        drawField();
+        drawTetro();
+
+        //一定間隔毎に関数を呼び出す
+        setInterval(dropTetro, GameSpeed);
+
+        //フィールドを描画する関数を定義
+        function drawField(){
+          //描画を一度クリアする これがないと動かすごとに増えていく
+          con.clearRect(0, 0, CanvasSize_X, CanvasSize_Y);
+
+          //各配列要素から繰り返し処理してフィールドを作成
+          for(let y=0; y<Field_Y; y++){
+            for(let x=0; x<Field_X; x++){
+              if(field[y][x]==1){
+                let px = x * BlockSize; //1要素に1ブロック分のサイズを持たせる
+                let py = y * BlockSize;
+                con.fillStyle = "blue"; //塗り潰しの属性を赤色に指定
+                con.fillRect(px, py, BlockSize, BlockSize) //指定位置にブロックサイズの四角を描画
+                con.strokeStyle = "black"; //輪郭の属性を黒色に指定
+                con.strokeRect(px, py, BlockSize, BlockSize) //指定位置にブロックサイズの輪郭を描画
+              }
+            }
+          }
+          //ゲームオーバーを表示
+          if(over){
+            let s = "げーむおーばー"
+            con.font = "40px sans-serif"
+            let w = con.measureText(s).width;
+            let x = CanvasSize_X/2 - w/2;
+            let y = CanvasSize_Y/2 - 20;
+            con.lineWidth = 4;
+            con.strokeText(s, x, y);
+            con.fillStyle = "white"
+            con.fillText(s, x, y);
+          }
+        }
+
+        //テトロミノを描画する関数を定義
+        function drawTetro(){
+          //描画を一度クリアする これがないと動かすごとに増えていく
+          //con.clearRect(0, 0, CanvasSize_X, CanvasSize_Y);
+          //フィールドの描画時点で1回クリアすればよいのでここは不使用
+
+          //各配列要素から繰り返し処理してテトロミノを作成
+          for(let y=0; y<TetroSize; y++){
+            for(let x=0; x<TetroSize; x++){
+              if(tetro[y][x]==1){ //要素が1の場合
+                let px = (tetro_x + x) * BlockSize; //1要素に1ブロック分のサイズを持たせる
+                let py = (tetro_y + y) * BlockSize; //tetro_x,yを加えて座標の位置にする
+                con.fillStyle = "red"; //塗り潰しの属性を赤色に指定
+                con.fillRect(px, py, BlockSize, BlockSize) //指定位置にブロックサイズの四角を描画
+                con.strokeStyle = "black"; //輪郭の属性を黒色に指定
+                con.strokeRect(px, py, BlockSize, BlockSize) //指定位置にブロックサイズの輪郭を描画
+              }
+            }
+          }
+        }
+
+        //ブロック移動・回転できるか当たり判定のチェック関数を定義
+        function checkMove(mx, my, ntetro){
+          if(ntetro == undefined) ntetro = tetro; //移動ではntetroを定義していないため
+          for(let y=0; y<TetroSize; y++){
+            for(let x=0; x<TetroSize; x++){
+              let nx = tetro_x + x + mx; //テトロミノの座標 + 4*4マスのどれか + 移動方向
+              let ny = tetro_y + y + my; //つまりブロックが動こうとしている座標
+              if(ntetro[y][x]){
+                if(ny < 0 //またはY座標がフィールド上端を超える場合
+                || nx < 0 //またはX座標がフィールド左端を超える場合
+                || ny >= Field_Y //またはY座標がフィールド下端を超える場合
+                || nx >= Field_X //またはY座標がフィールド右端を超える場合
+                || field[ny][nx]) //動こうとしている位置にフィールド上のブロックがある場合
+                return false; //falseを返す
+              }
+            }
+          }
+          return true; //問題なければtrueを返す
+        }
+
+        //回転動作の関数を定義
+        function rotate(){
+          let ntetro = [];
+          for(let y=0; y<TetroSize; y++){
+            ntetro[y] = [];
+            for(let x=0; x<TetroSize; x++){
+              ntetro[y][x] = tetro[TetroSize-x-1][y]; //新しいテトロ配列に古いテトロ配列をコピー
+            }
+          }
+          return ntetro; //新しいテトロの値を返す
+        }
+
+        //落ちたブロックを固定する関数を定義
+        function fixTetro(){
+          for(let y=0; y<TetroSize; y++){
+            for(let x=0; x<TetroSize; x++){
+              if(tetro[y][x]){
+                field[tetro_y + y][tetro_x + x] = 1; //？？
+              }
+            }
+          }
+        }
+
+        //ラインが揃ったかチェックして消す関数を定義
+        function checkLine(){
+          let linec = 0; //カウンター
+          for(let y=0; y<Field_Y; y++){
+            let flag = true; //各Y座標の行についてフラグを定義
+            for(let x=0; x<Field_X; x++){
+              if(!field[y][x]){ //0があったらフラグをfalseにする
+                flag = false;
+                break;
+              }
+            }
+            if(flag){ //フラグがtrue つまり1行揃っていたら
+              linec++; //カウンターをプラス
+              for(let ny=y; ny>0; ny--){
+                for(let nx=0; nx<Field_X; nx++){
+                  field[ny][nx] = field[ny-1][nx]; //揃った行を消す
+                }
+              }
+            }
+          }
+        }
+
+
+
+        //ブロックが落ちる関数を定義
+        function dropTetro(){
+
+          if(over) return; //ゲームオーバーであればブロックを落ちなくする
+
+          if(checkMove(0,1)){tetro_y++;} //下に行ければ移動
+          else {fixTetro(); //行けなければ固定
+            checkLine(); //ラインが揃ったかチェック
+          tetro_t = Math.floor(Math.random() * (TetroTypes.length - 1)) +1;
+          tetro = TetroTypes[tetro_t];
+          tetro_x = Start_X; //固定したら次のテトロを出現させる
+          tetro_y = Start_Y;
+          if(!checkMove(0,0)){ //新しいブロックが置けなかったら
+            over = true;
+          }
+        }
+          drawField();
+          drawTetro();
+        }
+
+        //キーボードが押されたときの処理
+        document.onkeydown = function(e){
+
+          if(over) return; //ゲームオーバーであればキーボード受け付けなくする
+
+          switch(e.keyCode){
+            case 37: //左矢印
+              if(checkMove(-1,0)) //チェック関数を使用するため動かす方向を指定
+              tetro_x--;          //関数が問題なければtrueとなりこの行が実行される
+              break;
+            case 38: //上矢印
+              if(checkMove(0,-1)) //
+              tetro_y--;
+              break;
+            case 39: //右矢印
+              if(checkMove(+1,0)) //
+              tetro_x++;
+              break;
+            case 40: //矢印
+              if(checkMove(0,+1)) //
+              tetro_y++;
+              break;
+            case 90: //Z
+              let ntetro = rotate();
+              if(checkMove(0,0,ntetro)) //回転できるか
+              tetro = ntetro;
+              break;
+          }
+          drawField();
+          drawTetro();
+        }
+
+
+
+      </script>
+
+    </div>
+    <div class="box">
+      <p></p>
+      <a href="index.html">もどる</a>
+    </div>
+  </body>
+</html>
